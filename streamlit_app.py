@@ -108,6 +108,63 @@ with st.expander("Метрики на тренировочной выборке 
     ax_train.set_xlabel('Предсказанный класс')
     ax_train.set_ylabel('Фактический класс')
     st.pyplot(fig_train)
+  
+# --- Раздел для предсказания на основе пользовательского ввода ---
+st.sidebar.header("Предсказание выживаемости")
+
+# Получение уникальных значений для категориальных параметров
+pclass_options = sorted(df['Pclass'].unique())
+sex_options = df['Sex'].unique()
+
+# Виджеты для ввода параметров
+pclass_input = st.sidebar.selectbox("Класс билета (Pclass)", pclass_options)
+sex_input = st.sidebar.selectbox("Пол (Sex)", sex_options)
+
+# Используем `float` для слайдеров, чтобы избежать ошибок с типизацией
+age_min, age_max = float(df['Age'].min()), float(df['Age'].max())
+age_mean = float(df['Age'].mean())
+age_input = st.sidebar.slider("Возраст (Age)", age_min, age_max, age_mean)
+
+fare_min, fare_max = float(df['Fare'].min()), float(df['Fare'].max())
+fare_mean = float(df['Fare'].mean())
+fare_input = st.sidebar.slider("Стоимость билета (Fare)", fare_min, fare_max, fare_mean)
+
+familysize_min, familysize_max = float(df['FamilySize'].min()), float(df['FamilySize'].max())
+familysize_mean = float(df['FamilySize'].mean())
+familysize_input = st.sidebar.slider("Размер семьи (FamilySize)", familysize_min, familysize_max, familysize_mean)
+
+# Создание DataFrame из пользовательских данных
+user_input_df = pd.DataFrame([{
+    'Pclass': pclass_input,
+    'Sex': sex_input,
+    'Age': age_input,
+    'Fare': fare_input,
+    'FamilySize': familysize_input
+}])
+
+# Предобработка пользовательских данных
+# Кодируем 'Sex' так же, как и при обучении модели
+user_input_df['Sex'] = le.transform(user_input_df['Sex'])
+
+st.sidebar.subheader("📈 Результат предсказания")
+
+# Предсказание и отображение результата
+prediction = model.predict(user_input_df)[0]
+prediction_proba = model.predict_proba(user_input_df)[0]
+
+# Отображение предсказания
+if prediction == 1:
+    st.sidebar.success(f"**Предсказание: Выживет!**")
+else:
+    st.sidebar.error(f"**Предсказание: Не выживет.**")
+
+# Отображение вероятностей
+proba_df = pd.DataFrame({
+    'Исход': ['Не выжил', 'Выжил'],
+    'Вероятность': prediction_proba
+})
+
+st.sidebar.dataframe(proba_df.set_index("Исход"), use_container_width=True)
 
 
 
