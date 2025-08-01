@@ -20,12 +20,12 @@ st.dataframe(df.sample(10), use_container_width=True)
 st.subheader("Визуализация данных")
 col1, col2 = st.columns(2)
 with col1:
-  fig1 = px.histogram(df, x="species", color="island", barmode="group", title="Распределение видов по островам")
+  fig1 = px.histogram(df, x="survived", color="Pclass", barmode="group", title="Выживаемость исходя от класса билета")
   st.plotly_chart(fig1, use_container_width=True)
 with col2:
-  fig2 = px.scatter(df, x="bill_length_mm", y="flipper_length_mm", color="species", title="Длина клюва vs Длина крыла")
+  fig2 = px.scatter(df, x="Age", y="Fare", color="survived", title="Возрасть vs Стоимость билета")
   st.plotly_chart(fig2, use_container_width=True)
-X = df.drop(['species'], axis=1)
-y = df['species']  
+X = df.drop(['survived'], axis=1)
+y = df['survived']  
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
