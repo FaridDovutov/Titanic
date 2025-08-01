@@ -113,6 +113,7 @@ with st.expander("Метрики на тренировочной выборке 
 st.sidebar.header("Предсказание выживаемости")
 
 # Получение уникальных значений для категориальных параметров
+# Pclass теперь имеет 3 категории, а Sex - 2.
 pclass_options = sorted(df['Pclass'].unique())
 sex_options = df['Sex'].unique()
 
@@ -134,17 +135,27 @@ familysize_mean = float(df['FamilySize'].mean())
 familysize_input = st.sidebar.slider("Размер семьи (FamilySize)", familysize_min, familysize_max, familysize_mean)
 
 # Создание DataFrame из пользовательских данных
-user_input_df = pd.DataFrame([{
-    'Pclass': pclass_input,
-    'Sex': sex_input,
-    'Age': age_input,
-    'Fare': fare_input,
-    'FamilySize': familysize_input
-}])
+# Теперь мы создаем пустой DataFrame с нужными колонками,
+# чтобы потом заполнить его данными от пользователя.
+user_input_df = pd.DataFrame(columns=X_train.columns)
 
-# Предобработка пользовательских данных
-# Кодируем 'Sex' так же, как и при обучении модели
-user_input_df['Sex'] = le.transform(user_input_df['Sex'])
+# Заполняем DataFrame данными пользователя, учитывая one-hot кодирование
+# Для Pclass
+for pclass in pclass_options:
+    user_input_df[f'Pclass_{pclass}'] = 0
+user_input_df[f'Pclass_{pclass_input}'] = 1
+
+# Для Sex
+if 'Sex_male' in user_input_df.columns:
+    user_input_df['Sex_male'] = 1 if sex_input == 'male' else 0
+
+# Заполняем числовые колонки
+user_input_df['Age'] = age_input
+user_input_df['Fare'] = fare_input
+user_input_df['FamilySize'] = familysize_input
+
+# Убеждаемся, что все колонки присутствуют и в правильном порядке
+user_input_df = user_input_df.reindex(columns=X_train.columns, fill_value=0)
 
 st.sidebar.subheader("📈 Результат предсказания")
 
@@ -165,7 +176,6 @@ proba_df = pd.DataFrame({
 })
 
 st.sidebar.dataframe(proba_df.set_index("Исход"), use_container_width=True)
-
 
 
 
