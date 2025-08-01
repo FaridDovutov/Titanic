@@ -12,7 +12,8 @@ st.write("## Работа с датасетом титаника")
 @st.cache_data
 def load_data():
   df = pd.read_csv('titanic_final_processed.csv')
-   return df
+  return df
+  
 @st.cache_resource
 def train_model(df):
     st.write("Обучение модели...")
