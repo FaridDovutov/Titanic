@@ -109,11 +109,10 @@ with st.expander("Метрики на тренировочной выборке 
     ax_train.set_ylabel('Фактический класс')
     st.pyplot(fig_train)
   
+# --- Раздел для предсказания на основе пользовательского ввода ---
 st.sidebar.header("Предсказание выживаемости")
 
-# Получение уникальных значений для категориальных параметров
-# Теперь мы не можем взять их из 'df', так как этих колонок там нет.
-# Задаем их вручную, так как они известны.
+# Определяем опции вручную, так как исходных колонок 'Pclass' и 'Sex' уже нет
 pclass_options = [1, 2, 3]
 sex_options = ['male', 'female']
 
@@ -137,21 +136,21 @@ familysize_input = st.sidebar.slider("Размер семьи (FamilySize)", fam
 # Создание DataFrame из пользовательских данных
 # Создаем пустой DataFrame с колонками, на которых обучалась модель
 user_input_df = pd.DataFrame(columns=X_train.columns)
+user_input_df.loc[0] = 0 # Инициализируем строку нулями
 
 # Заполняем DataFrame данными пользователя, учитывая one-hot кодирование
 # Pclass
-if pclass_input == 1:
-    user_input_df['Pclass_2'] = 0
-    user_input_df['Pclass_3'] = 0
-elif pclass_input == 2:
-    user_input_df['Pclass_2'] = 1
-    user_input_df['Pclass_3'] = 0
+if pclass_input == 2:
+    if 'Pclass_2' in user_input_df.columns:
+        user_input_df['Pclass_2'] = 1
 elif pclass_input == 3:
-    user_input_df['Pclass_2'] = 0
-    user_input_df['Pclass_3'] = 1
+    if 'Pclass_3' in user_input_df.columns:
+        user_input_df['Pclass_3'] = 1
 
 # Sex
-user_input_df['Sex_male'] = 1 if sex_input == 'male' else 0
+if sex_input == 'male':
+    if 'Sex_male' in user_input_df.columns:
+        user_input_df['Sex_male'] = 1
 
 # Заполняем числовые колонки
 user_input_df['Age'] = age_input
