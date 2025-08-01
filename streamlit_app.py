@@ -113,9 +113,9 @@ with st.expander("Метрики на тренировочной выборке 
 st.sidebar.header("Предсказание выживаемости")
 
 # Получение уникальных значений для категориальных параметров
-# Pclass теперь имеет 3 категории, а Sex - 2.
-pclass_options = sorted(df['Pclass'].unique())
-sex_options = df['Sex'].unique()
+# Теперь мы не можем взять их из 'df', так как этих колонок там нет
+pclass_options = [1, 2, 3]
+sex_options = ['male', 'female']
 
 # Виджеты для ввода параметров
 pclass_input = st.sidebar.selectbox("Класс билета (Pclass)", pclass_options)
@@ -135,22 +135,23 @@ familysize_mean = float(df['FamilySize'].mean())
 familysize_input = st.sidebar.slider("Размер семьи (FamilySize)", familysize_min, familysize_max, familysize_mean)
 
 # Создание DataFrame из пользовательских данных
-# Теперь мы создаем пустой DataFrame с нужными колонками,
-# чтобы потом заполнить его данными от пользователя.
+# Создаем пустой DataFrame с колонками, на которых обучалась модель
 user_input_df = pd.DataFrame(columns=X_train.columns)
 
 # Заполняем DataFrame данными пользователя, учитывая one-hot кодирование
-# Для Pclass
-for pclass in pclass_options:
-    # Имя колонки формируется так же, как в pd.get_dummies, но с учетом drop_first=True
-    if pclass > 1:
-        user_input_df[f'Pclass_{pclass}'] = 0
-if pclass_input > 1:
-    user_input_df[f'Pclass_{pclass_input}'] = 1
+# Pclass
+if pclass_input == 1:
+    user_input_df['Pclass_2'] = 0
+    user_input_df['Pclass_3'] = 0
+elif pclass_input == 2:
+    user_input_df['Pclass_2'] = 1
+    user_input_df['Pclass_3'] = 0
+elif pclass_input == 3:
+    user_input_df['Pclass_2'] = 0
+    user_input_df['Pclass_3'] = 1
 
-# Для Sex
-if 'Sex_male' in X_train.columns:
-    user_input_df['Sex_male'] = 1 if sex_input == 'male' else 0
+# Sex
+user_input_df['Sex_male'] = 1 if sex_input == 'male' else 0
 
 # Заполняем числовые колонки
 user_input_df['Age'] = age_input
@@ -179,5 +180,4 @@ proba_df = pd.DataFrame({
 })
 
 st.sidebar.dataframe(proba_df.set_index("Исход"), use_container_width=True)
-
 
