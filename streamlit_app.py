@@ -21,7 +21,7 @@ st.dataframe(df.sample(10), use_container_width=True)
 st.subheader("Визуализация данных")
 col1, col2 = st.columns(2)
 with col1:
-  fig1 = px.histogram(df, x="Survived", color="Pclass", barmode="group", title="Выживаемость исходя от класса билета")
+  fig1 = px.histogram(df, x="Survived", color="FamilySize", barmode="group", title="Выживаемость исходя от количество членов семьи")
   st.plotly_chart(fig1, use_container_width=True)
 with col2:
   fig2 = px.scatter(df, x="Age", y="Fare", color="Survived", title="Возрасть vs Стоимость билета")
